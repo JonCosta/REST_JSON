@@ -10,6 +10,8 @@ import javax.ws.rs.Produces;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
+import java.text.DecimalFormat ;
+
 @Path("/teste")
 public class Services {
 
@@ -96,36 +98,74 @@ public class Services {
 	@Path("/experiencia1")
 	public JSONObject experiencia1(JSONObject jsonParam){
 		
-		Taxi taxi1 = new Taxi("ABC-1234", -25.438698, -49.237869) ;
-		Taxi taxi2 = new Taxi("ABD-2345", -25.443852, -49.24186) ;
-		Taxi taxi3 = new Taxi("ACB-3456", -25.443697, -49.234006) ;
+		HashMap<String, String> hm = new HashMap<String, String>() ;
+		double lat = 0, latOrigem = 0 ;
+		double lng = 0, lngOrigem = 0 ;
+		double distA = 0;
+		double distB = 0;
+		double distC = 0;
+		
+		Taxi taxiA = new Taxi("ABC-1234", -25.438294, -49.237397) ;
+		Taxi taxiB = new Taxi("ABD-2345", -25.43779, -49.236914) ;
+		Taxi taxiC = new Taxi("ACB-3456", -25.437344, -49.236259) ;
 		
 		/*
-		 * -25.444162,-49.238813 Próximo de 1
-		 * -25.440209,-49.239371 Próximo de 2
-		 * -25.441992,-49.235938 Próximo de 3
+		 * -25.444162,-49.238813 Próximo de A
+		 * -25.440209,-49.239371 Próximo de B
+		 * -25.441992,-49.235938 Próximo de C
 		 * */
 		
-		HashMap hm = new HashMap() ;
-		hm.put("tax1lng", taxi1.getLongitude()) ;
-		hm.put("tax1lat", taxi1.getLatitude()) ;
-		hm.put("tax1placa", taxi1.getPlaca()) ;
+		try {
+			
+			latOrigem = jsonParam.getDouble("latitude") ;
+			latOrigem = latOrigem / 1E6 ;
+			lngOrigem = jsonParam.getDouble("longitude") ;
+			lngOrigem = lngOrigem / 1E6 ;
+			
+			System.out.println("Lat: "+ latOrigem+ " Lng: "+lngOrigem) ;
+			
+			distA = distFrom(latOrigem, lngOrigem, taxiA.getLatitude(), taxiA.getLongitude()) ;
+			System.out.println("DistA: "+distA) ;
+			distB = distFrom(latOrigem, lngOrigem, taxiB.getLatitude(), taxiB.getLongitude()) ;
+			System.out.println("DistB: "+distB) ;
+			distC = distFrom(latOrigem, lngOrigem, taxiC.getLatitude(), taxiC.getLongitude()) ;
+			System.out.println("DistC: "+distC) ;
+			
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 		
-		hm.put("tax2lng", taxi2.getLongitude()) ;
-		hm.put("tax2lat", taxi2.getLatitude()) ;
-		hm.put("tax2placa", taxi2.getPlaca()) ;
-		
-		hm.put("tax3lng", taxi3.getLongitude()) ;
-		hm.put("tax3lat", taxi3.getLatitude()) ;
-		hm.put("tax3placa", taxi3.getPlaca()) ;
-		
-		/*
-		hm.put("taxi1", taxi1) ;
-		hm.put("taxi2", taxi2) ;
-		hm.put("taxi3", taxi3) ;
-		*/
+		if((distA <= distB) && (distA <= distC)){
+			hm.put("Placa", taxiA.getPlaca()) ;
+		}else if((distB <= distA) && (distB <= distC)){
+			hm.put("Placa", taxiB.getPlaca()) ;
+		}else if((distC <= distA) && (distC <= distB)){
+			hm.put("Placa", taxiC.getPlaca()) ;
+		}else {
+			hm.put("Placa", "Nada foi encontrado") ;
+		}
 		
 		JSONObject resposta = new JSONObject(hm) ;
 		return resposta ;
-	}
+		
+	}//Fecha experiencia1
+	
+	public double distFrom(double lat1, double lng1, double lat2, double lng2) {
+		//Raio da Terra em milhas
+		double earthRadius = 3958.75; 
+		//Diferença entre as latitudes e longitutdes, já convertendo os graus para Radianos
+	    double dLat = Math.toRadians(lat2-lat1); 
+	    double dLng = Math.toRadians(lng2-lng1);
+	    //Aplicação da fórmula
+	    double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+	               Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+	               Math.sin(dLng/2) * Math.sin(dLng/2);
+	    
+	    double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+	    double dist = earthRadius * c;
+	    //Variável para converter de Milhas para Metros
+	    int meterConversion = 1609; 
+	    //Envia a distância convertida em metros
+	    return new Double(dist * meterConversion).doubleValue();
+	}//Fecha distFrom
 }

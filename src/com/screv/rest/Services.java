@@ -1,5 +1,6 @@
 package com.screv.rest;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.ws.rs.Consumes;
@@ -10,63 +11,11 @@ import javax.ws.rs.Produces;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
-import java.text.DecimalFormat ;
 
 @Path("/teste")
 public class Services {
 
-	@Produces("application/json")
-	@Consumes("application/json")
-	@POST
-	@Path("/somar")
-	public JSONObject somar(JSONObject jsonParam) {
-
-		// Lê os parâmetros em jsonParam e gera um outro JSON como resposta
-		// Exemplo:
-		Double n1 = null;
-		Double n2 = null;
-		try {
-			n1 = jsonParam.getDouble("numero1");
-			n2 = jsonParam.getDouble("numero2");
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		Double soma = n1 + n2;
-
-		HashMap<String, Double> hm = new HashMap<String, Double>();
-		hm.put("resultado", soma);
-		// Cada chave do HashMap vira uma Chave do JSON
-		JSONObject resposta = new JSONObject(hm);
-		return resposta;
-	}
-	
-	@Produces("application/json")
-	@Consumes("application/json")
-	@POST
-	@Path("/multiplicar")
-	public JSONObject multiplicar(JSONObject jsonParam){
-		
-		// Lê os parâmetros em jsonParam e gera um outro JSON como resposta
-		// Exemplo:
-		Double n1 = null;
-		Double n2 = null;
-		try{
-			n1 = jsonParam.getDouble("numero1") ;
-			n2 = jsonParam.getDouble("numero2") ;
-		}catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		Double soma = n1 * n2;
-
-		HashMap<String, Double> hm = new HashMap<String, Double>();
-		hm.put("resultado", soma);
-		// Cada chave do HashMap vira uma Chave do JSON
-		JSONObject resposta = new JSONObject(hm);
-		return resposta;
-		
-	}//Fecha multiplicar
+	private ArrayList<Pedido> listaPedidos ;
 	
 	@Produces("application/json")
 	@Consumes("application/json")
@@ -149,6 +98,27 @@ public class Services {
 		return resposta ;
 		
 	}//Fecha experiencia1
+	
+	@Produces("application/json")
+	@Consumes("application/json")
+	@POST
+	@Path("/checkPedido")
+	public JSONObject checkPedido(JSONObject params){
+		
+		String endereco = "R. da Paz, 645, Bairro Urano";
+		String referencia = "Banco do Brasil" ;
+		Pedido ped = new Pedido(endereco, referencia) ;
+		
+		HashMap hm = new HashMap() ;
+		
+		hm.put("Endereco", ped.getEndereco()) ;
+		hm.put("Referencia", ped.getReferencia()) ;
+		hm.put("Pedido", false) ;
+		
+		JSONObject resposta = new JSONObject(hm) ;
+		return resposta ;
+		
+	}//Fecha checkPedido
 	
 	public double distFrom(double lat1, double lng1, double lat2, double lng2) {
 		//Raio da Terra em milhas
